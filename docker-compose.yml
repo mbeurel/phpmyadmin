@@ -1,0 +1,26 @@
+version: "3"
+
+services:
+  phpmyadmin:
+    image:          phpmyadmin/phpmyadmin:latest
+    container_name: phpmyadmin
+    networks:
+      - traefik
+    environment:
+      TZ:             Europe/Paris
+      PMA_ARBITRARY:  1
+      UPLOAD_LIMIT:   10000000
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.phpmyadmin.rule=Host(`${PHPMYADMIN_DOMAIN}`)"
+      - "traefik.http.routers.phpmyadmin.entryPoints=web"
+      - "traefik.http.routers.phpmyadmin.middlewares=redirect-to-https@file"
+      - "traefik.http.routers.phpmyadmin-https.rule=Host(`${PHPMYADMIN_DOMAIN}`)"
+      - "traefik.http.routers.phpmyadmin-https.entryPoints=websecure"
+      - "traefik.http.routers.phpmyadmin-https.tls=true"
+      - "traefik.http.routers.phpmyadmin-https.tls.certresolver=${CERT_RESOLVER}"
+
+networks:
+  traefik:
+    external:
+      name: traefik
